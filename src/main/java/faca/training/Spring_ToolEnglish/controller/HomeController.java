@@ -1,10 +1,12 @@
 package faca.training.Spring_ToolEnglish.controller;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,15 +28,44 @@ public class HomeController {
 	@RequestMapping("/")
 	public String showvietnamese(Model model) {
 		List<NewWord> vietnamese =  service.findall();
+		vietnamese.sort(Comparator.comparing(NewWord::getId));
 		model.addAttribute("vietnamese", vietnamese);
 		int total = vietnamese.size();
 		model.addAttribute("wordtotal", total);
 		return "Home";
 	}
-	@RequestMapping("/createnewword")
-	public String createnewword() {
-		return "CreateNewWord";
+	
+	@GetMapping("/hoctu")
+		public String hoctu(Model model) {
+		NewWord word;
+		do {
+		  word = service.findbynewdate();
+		}while(word == null);
+		model.addAttribute("word", word);
+		return "HocTu";
+		}
+	
+	@PostMapping("/kiemtrahoc")
+	public String kiemtrahoc(Model model, @ModelAttribute NewWord word, @RequestParam("extraInput") String input) {
+		if(input.equalsIgnoreCase(word.getEnglish())) {
+			NewWord newword;
+			do {
+			  newword = service.findbynewdate();
+			}while(newword == null);
+			model.addAttribute("kqtrue", "Trả lời Chính Xác, Tiếp Tục Ôn Luyện Nào");
+			model.addAttribute("word", newword);
+			return "HocTu";
+		}else {
+			model.addAttribute("word", word);
+			model.addAttribute("kqfalse", "Kiểm Tra Đáp Án Sai Kiểm Tra Lại");
+			return "HocTu";
+		}
 	}
+	@GetMapping("/createnewword")
+	public String createNewWord() {
+		return "/CreateNewWord";
+	}
+	
 	@RequestMapping("/testtu")
 	public String testtu(Model model) {
 		NewWord word;
@@ -60,6 +91,48 @@ public class HomeController {
 			return "TraTu";
 		}
 	}
+	@GetMapping("/hocenglish")
+	public String english(Model model) {
+		NewWord word;
+		do {
+		  word = service.findnewword();
+		}while(word == null);
+		model.addAttribute("word", word);
+		return "tienganh";
+	}
+	@PostMapping("/English")
+	public String kiemtraEnglish(Model model, @ModelAttribute NewWord word, @RequestParam("extraInput") String input) {
+		if(input.equalsIgnoreCase(word.getVietnamese())) {
+			NewWord newword;
+			do {
+			  newword = service.findnewword();
+			}while(newword == null);
+			model.addAttribute("kqtrue", "Trả lời Chính Xác, Tiếp Tục Ôn Luyện Nào");
+			model.addAttribute("word", newword);
+			return "tienganh";
+		}else {
+			model.addAttribute("word", word);
+			model.addAttribute("kqfalse", "Kiểm Tra Đáp Án Sai Kiểm Tra Lại");
+			return "tienganh";
+		}
+	}
+	
+	@GetMapping("/allword")
+	public String allword(Model model) {
+		model.addAttribute("item", service.findvietnamese());
+		return "KiemTra";
+	}
 	
 
+    @GetMapping("/editword")
+    public String editword(Model model,@RequestParam("id") int id) {
+    	
+    	model.addAttribute("word", service.findById(id));
+    	return "UpdateWord";
+    }
+    @PostMapping("/updateword")
+    public String updateword(Model model,@ModelAttribute NewWord newword) {
+    	service.Update(newword);
+    	return "redirect:/";
+    }
 }

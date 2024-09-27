@@ -1,5 +1,6 @@
 package faca.training.Spring_ToolEnglish.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
 
@@ -16,7 +17,7 @@ public class NewWordService  {
   public void createnewword(NewWord newword) {
 	  newdao.save(newword);
   }
-  public NewWord findvietnamese() {
+  public List<NewWord> findvietnamese() {
 	  return  newdao.finvietnamese();
   }
   public List<NewWord> findall(){
@@ -27,5 +28,22 @@ public class NewWordService  {
 	  Random random = new Random();
 	  int id = random.nextInt(n);
 	  return newdao.findById(id).orElse(null);
+  }
+  public NewWord findById(int id) {
+	  return newdao.findById(id).orElse(null);
+  }
+  public NewWord findbynewdate() {
+	  int n = newdao.findAll().size();
+	  Random random = new Random();
+	  int id = random.nextInt(n);
+	  LocalDate date = LocalDate.of(2024, 8, 14);
+	  return newdao.findbynewdate(id, date).orElse(null);
+  }
+  public void Update(NewWord newword) {
+	 NewWord word = findById(newword.getId());
+	  word.setEnglish(newword.getEnglish());
+	  word.setEnglish(newword.getVietnamese());
+	  word.setEnglish(newword.getPhienam());
+	  newdao.save(newword);
   }
   }
